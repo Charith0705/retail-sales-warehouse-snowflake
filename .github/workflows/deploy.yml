@@ -14,10 +14,11 @@ jobs:
 
       - name: Install SnowSQL
         run: |
-          pip install snowflake-cli-labs
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          wget https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.4/linux_x86_64/snowsql-1.4.5-linux_x86_64.bash
+          SNOWSQL_DEST=~/bin bash snowsql-1.4.5-linux_x86_64.bash
+          echo "$HOME/bin" >> $GITHUB_PATH
 
-      - name: Verify SnowSQL Install
+      - name: Verify SnowSQL
         run: |
           snowsql --version
 
