@@ -1,30 +1,25 @@
--- Ensure we are using the correct role
+-- Use proper role
 USE ROLE SYSADMIN;
 
--- Create new testing database
+-- Create / use warehouse database
 CREATE DATABASE IF NOT EXISTS SnowDatabase;
-
--- Set database context
 USE DATABASE SnowDatabase;
 
 -- Create Bronze schema
 CREATE SCHEMA IF NOT EXISTS BRONZE;
-
--- Set schema context
 USE SCHEMA BRONZE;
 
--- Create lightweight CI test table
-CREATE OR REPLACE TABLE CI_TEST_TABLE (
-    id INT,
-    pipeline_name STRING,
-    created_at TIMESTAMP
-);
+-- Ingest raw store sales data (limited for CI testing)
+CREATE OR REPLACE TABLE STORE_SALES_RAW AS
+SELECT *
+FROM SNOWFLAKE_SAMPLE_DATA.TPCDS_SF100TCL.STORE_SALES
+LIMIT 1000;
 
--- Insert small test data
-INSERT INTO CI_TEST_TABLE VALUES
-(1, 'GitHub_Bronze_Test', CURRENT_TIMESTAMP()),
-(2, 'Automation_Check', CURRENT_TIMESTAMP());
-
--- Validation query
+-- Validation checks
 SELECT COUNT(*) AS total_rows
-FROM CI_TEST_TABLE;
+FROM STORE_SALES_RAW;
+
+-- Preview data
+SELECT *
+FROM STORE_SALES_RAW
+LIMIT 10;
