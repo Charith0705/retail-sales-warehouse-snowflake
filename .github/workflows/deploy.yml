@@ -15,6 +15,11 @@ jobs:
       - name: Install SnowSQL
         run: |
           pip install snowflake-cli-labs
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Verify SnowSQL Install
+        run: |
+          snowsql --version
 
       - name: Execute Bronze SQL
         env:
