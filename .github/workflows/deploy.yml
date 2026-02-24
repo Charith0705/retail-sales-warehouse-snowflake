@@ -12,19 +12,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Run Bronze SQL via SnowSQL Container
+      - name: Install Snowflake CLI
+        uses: snowflakedb/snowflake-cli-action@v1
+
+      - name: Execute Bronze SQL
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
 
         run: |
-          docker run --rm \
-            -v "$PWD:/workspace" \
-            snowflake/snowsql:latest \
-            snowsql -a $SNOWFLAKE_ACCOUNT \
-                    -u $SNOWFLAKE_USER \
-                    -p $SNOWFLAKE_PASSWORD \
-                    -r SYSADMIN \
-                    -w COMPUTE_WH \
-                    -f /workspace/sql/01_bronze.sql
+          snowsql -a $SNOWFLAKE_ACCOUNT \
+                   -u $SNOWFLAKE_USER \
+                   -p $SNOWFLAKE_PASSWORD \
+                   -r SYSADMIN \
+                   -w COMPUTE_WH \
+                   -f sql/01_bronze.sql
