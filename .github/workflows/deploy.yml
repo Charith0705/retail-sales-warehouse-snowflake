@@ -12,19 +12,39 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install Snowflake CLI
-        uses: snowflakedb/snowflake-cli-action@v1
+      - name: Install Snowflake Python Connector
+        run: |
+          pip install snowflake-connector-python
 
-      - name: Execute Bronze SQL
+      - name: Execute Bronze SQL via Python
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
 
         run: |
-          snowsql -a $SNOWFLAKE_ACCOUNT \
-                   -u $SNOWFLAKE_USER \
-                   -p $SNOWFLAKE_PASSWORD \
-                   -r SYSADMIN \
-                   -w COMPUTE_WH \
-                   -f sql/01_bronze.sql
+          python <<EOF
+          import snowflake.connector
+
+          conn = snowflake.connector.connect(
+              user="$SNOWFLAKE_USER",
+              password="$SNOWFLAKE_PASSWORD",
+              account="$SNOWFLAKE_ACCOUNT",
+              role="SYSADMIN",
+              warehouse="COMPUTE_WH"
+          )
+
+          cursor = conn.cursor()
+
+          with open("sql/01_bronze.sql", "r") as f:
+              sql_commands = f.read().split(";")
+
+          for command in sql_commands:
+              if command.strip():
+                  cursor.execute(command)
+
+          print("Bronze layer executed successfully.")
+
+          cursor.close()
+          conn.close()
+          EOF
