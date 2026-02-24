@@ -15,12 +15,11 @@ jobs:
       - name: Install SnowSQL
         run: |
           wget https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.4/linux_x86_64/snowsql-1.4.5-linux_x86_64.bash
-          SNOWSQL_DEST=~/bin bash snowsql-1.4.5-linux_x86_64.bash
+          bash snowsql-1.4.5-linux_x86_64.bash -y -b $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Verify SnowSQL
-        run: |
-          snowsql --version
+        run: snowsql --version
 
       - name: Execute Bronze SQL
         env:
