@@ -13,7 +13,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install SnowSQL
-        uses: Snowflake-Labs/snowflake-cli-action@v1
+        run: |
+          pip install snowflake-cli-labs
 
       - name: Execute Bronze SQL
         env:
