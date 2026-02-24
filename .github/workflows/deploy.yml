@@ -12,25 +12,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Install SnowSQL
-        run: |
-          wget https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.4/linux_x86_64/snowsql-1.4.5-linux_x86_64.bash
-          bash snowsql-1.4.5-linux_x86_64.bash -y -b $HOME/bin
-          echo "$HOME/bin" >> $GITHUB_PATH
-
-      - name: Verify SnowSQL
-        run: snowsql --version
-
-      - name: Execute Bronze SQL
+      - name: Run Bronze SQL via SnowSQL Container
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
 
         run: |
-          snowsql -a $SNOWFLAKE_ACCOUNT \
-                   -u $SNOWFLAKE_USER \
-                   -p $SNOWFLAKE_PASSWORD \
-                   -r SYSADMIN \
-                   -w COMPUTE_WH \
-                   -f sql/01_bronze.sql
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            snowflake/snowsql:latest \
+            snowsql -a $SNOWFLAKE_ACCOUNT \
+                    -u $SNOWFLAKE_USER \
+                    -p $SNOWFLAKE_PASSWORD \
+                    -r SYSADMIN \
+                    -w COMPUTE_WH \
+                    -f /workspace/sql/01_bronze.sql
