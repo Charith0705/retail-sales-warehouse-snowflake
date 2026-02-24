@@ -1,0 +1,32 @@
+name: Deploy Bronze Layer
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-bronze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install SnowSQL
+        run: |
+          curl -O https://sfc-repo.snowflakecomputing.com/snowsql/bootstrap/1.4/linux_x86_64/snowsql-1.4.5-linux_x86_64.bash
+          bash snowsql-1.4.5-linux_x86_64.bash
+
+      - name: Execute Bronze SQL
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+
+        run: |
+          snowsql -a $SNOWFLAKE_ACCOUNT \
+                   -u $SNOWFLAKE_USER \
+                   -p $SNOWFLAKE_PASSWORD \
+                   -r SYSADMIN \
+                   -w COMPUTE_WH \
+                   -f sql/01_bronze.sql
